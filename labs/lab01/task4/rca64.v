@@ -1,3 +1,8 @@
+// rca64.v
+// A plain 64-bit ripple-carry adder, chaining 64 FA_Gate instances.
+
+`timescale 1ns/1ps
+
 module rca64(
   input  [63:0] a,
   input  [63:0] b,
@@ -6,7 +11,7 @@ module rca64(
   output        cout
 );
 
-wire [64:0] c;
+  wire [64:0] c;
   assign c[0] = cin;
 
   genvar i;
@@ -17,6 +22,5 @@ wire [64:0] c;
   endgenerate
 
   assign cout = c[64];
-  // TODO: your 64-bit ripple-carry structure goes here.
 
 endmodule
