@@ -1,3 +1,8 @@
+// cla4.v
+// Gate-level 4-bit carry-lookahead adder, matching the lecture circuit.
+
+`timescale 1ns/1ps
+
 module cla4(
   input  [3:0] a,
   input  [3:0] b,
@@ -9,40 +14,49 @@ module cla4(
   wire p0, p1, p2, p3;
   wire g0, g1, g2, g3;
   wire c1, c2, c3;
-  wire t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
 
-  //c1 and sum[0]
-  and #(2) (g0,a[0],b[0]);
-  xor #(2) (p0,a[0],b[0]);
-  and #(2) (t1,p0,cin);
-  or #(2) (c1,g0,t1);
-  xor #(2) (sum[0],p0,cin);
+  // Step 1: generate/propagate
+  xor #(2) (p0, a[0], b[0]);
+  xor #(2) (p1, a[1], b[1]);
+  xor #(2) (p2, a[2], b[2]);
+  xor #(2) (p3, a[3], b[3]);
 
-  //c2 and sum[1]
-  and #(2) (g1,a[1],b[1]);
-  xor #(2) (p1,a[1],b[1]);
-  and #(2) (t2,p1,g0);
-  and #(2) (t3,p1,p0,cin);
-  or #(2) (c2,g1,t2,t3);
-  xor #(2) (sum[1],p1,c1);
+  and #(2) (g0, a[0], b[0]);
+  and #(2) (g1, a[1], b[1]);
+  and #(2) (g2, a[2], b[2]);
+  and #(2) (g3, a[3], b[3]);
 
-  //c3 and sum[2]
-  and #(2) (g2,a[2],b[2]);
-  xor #(2) (p2,a[2],b[2]);
-  and #(2) (t4,p2,g1);
-  and #(2) (t5,p2,p1,g0);
-  and #(2) (t6,p2,p1,p0,cin);
-  or #(2) (c3,g2,t4,t5,t6);
-  xor #(2) (sum[2],p2,c2);
+  // Step 2: direct carry equations (multi-input and/or primitives)
+  // c1 = g0 + p0.cin
+  wire t1_0;
+  and #(2) (t1_0, p0, cin);
+  or  #(2) (c1, g0, t1_0);
 
-  //c4 and sum[3]
-  and #(2) (g3,a[3],b[3]);
-  xor #(2) (p3,a[3],b[3]);
-  and #(2) (t7,p3,g2);
-  and #(2) (t8,p3,p2,g1);
-  and #(2) (t9,p3,p2,p1,g0);
-  and #(2) (t10,p3,p2,p1,p0,cin);
-  or #(2) (cout,g3,t7,t8,t9,t10);
-  xor #(2) (sum[3],p3,c3);
+  // c2 = g1 + p1.g0 + p1.p0.cin
+  wire t2_0, t2_1;
+  and #(2) (t2_0, p1, g0);
+  and #(2) (t2_1, p1, p0, cin);
+  or  #(2) (c2, g1, t2_0, t2_1);
+
+  // c3 = g2 + p2.g1 + p2.p1.g0 + p2.p1.p0.cin
+  wire t3_0, t3_1, t3_2;
+  and #(2) (t3_0, p2, g1);
+  and #(2) (t3_1, p2, p1, g0);
+  and #(2) (t3_2, p2, p1, p0, cin);
+  or  #(2) (c3, g2, t3_0, t3_1, t3_2);
+
+  // c4 (cout) = g3 + p3.g2 + p3.p2.g1 + p3.p2.p1.g0 + p3.p2.p1.p0.cin
+  wire t4_0, t4_1, t4_2, t4_3;
+  and #(2) (t4_0, p3, g2);
+  and #(2) (t4_1, p3, p2, g1);
+  and #(2) (t4_2, p3, p2, p1, g0);
+  and #(2) (t4_3, p3, p2, p1, p0, cin);
+  or  #(2) (cout, g3, t4_0, t4_1, t4_2, t4_3);
+
+  // Step 3: sum bits, sum[i] = p[i] xor c[i]  (c0 = cin)
+  xor #(2) (sum[0], p0, cin);
+  xor #(2) (sum[1], p1, c1);
+  xor #(2) (sum[2], p2, c2);
+  xor #(2) (sum[3], p3, c3);
 
 endmodule

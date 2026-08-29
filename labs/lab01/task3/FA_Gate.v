@@ -7,10 +7,10 @@ module FA_Gate(
 );
   wire ps, pc1, pc2;
 
-xor #(1,2) (ps,  a,   b);
-and #(1,2) (pc1, a,   b);
-xor #(2,3) (sum, cin, ps);
-and #(1,2) (pc2, cin, ps);
+xor #(2,1) (ps,  a,   b);
+and #(2,1) (pc1, a,   b);
+xor #(2,1) (sum, cin, ps);
+and #(2,1) (pc2, cin, ps);
 or  #(2,1) (cout, pc1, pc2);
 
 
