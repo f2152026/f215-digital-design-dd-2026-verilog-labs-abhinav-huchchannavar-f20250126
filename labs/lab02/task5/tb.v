@@ -9,6 +9,7 @@ module tb;
 
   wire [3:0] t_result;
 
+
   reg [3:0] expected;
 
   integer errors;
